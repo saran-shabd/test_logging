@@ -1,4 +1,3 @@
-import logging
 import another_test
 from get_logger import get_logger
 
