@@ -1,28 +1,65 @@
 import logging
+from logging.handlers import TimedRotatingFileHandler
+import os
 
 
-def get_logger(name):
-    """create new logger with application standards"""
+class Logger:
+
+    @staticmethod
+    def get_logger(name):
+        """create new logger with application standards"""
+        
+        Logger.__create_logs_directory()
+        logger = Logger.__create_logger(name)
+
+        app_handler = Logger.__create_time_handler('logs/app.log', logging.INFO)
+        debug_handler = Logger.__create_stream_handler(logging.DEBUG)
+
+        logger.addHandler(app_handler)
+        logger.addHandler(debug_handler)
+
+        return logger
     
-    # create logger
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
+    @staticmethod
+    def __create_logs_directory():
+        try:
+            os.mkdir('logs')
+        except OSError:  # directory already exists
+            pass
 
-    # formatter
-    formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(filename)s : %(message)s')
+    @staticmethod
+    def __create_logger(name):
+        """create new logger instance"""
 
-    # main handler
-    file_handler = logging.FileHandler('main.log')
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(formatter)
+        logger = logging.getLogger(name)
+        logger.setLevel(logging.DEBUG)
 
-    # debugging handler
-    debug_handler = logging.FileHandler('debug.log')
-    debug_handler.setLevel(logging.DEBUG)
-    debug_handler.setFormatter(formatter)
+        return logger
+    
+    @staticmethod
+    def __create_formatter():
+        """return logger formatter"""
+        
+        format_str = '%(asctime)s : %(levelname)s : %(filename)s : %(message)s'
+        return logging.Formatter(format_str)
+    
+    @staticmethod
+    def __create_time_handler(filename, level):
+        """create file logging handler"""
 
-    # add handlers to logger
-    logger.addHandler(file_handler)
-    logger.addHandler(debug_handler)
+        handler = TimedRotatingFileHandler(filename=filename, when='M', interval=1)
+        handler.setLevel(level)
+        handler.setFormatter(Logger.__create_formatter())
+        handler.suffix = '%Y-%m-%d'
 
-    return logger
+        return handler
+    
+    @staticmethod
+    def __create_stream_handler(level):
+        """create stream logging handler"""
+
+        main_handler = logging.StreamHandler()
+        main_handler.setLevel(level)
+        main_handler.setFormatter(Logger.__create_formatter())
+
+        return main_handler

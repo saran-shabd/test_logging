@@ -1,7 +1,6 @@
-from get_logger import get_logger
+from get_logger import Logger
 
-# create new logger
-logger = get_logger(__name__)
+logger = Logger.get_logger(__name__)
 
 
 def do_something():

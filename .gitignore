@@ -1,8 +1,9 @@
 # vscode files
 .vscode/
 
-# python environment files
+# python files
 env/
+*.pyc
 
 # log files
 *.log
